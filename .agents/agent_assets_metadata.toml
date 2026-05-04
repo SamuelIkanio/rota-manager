@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "VBO5DWiXa8zqka8TRQitP"
+uri = "file://artifacts/rota-mobile/assets/images/icon.png"
+type = "image"
+title = "rota manager app icon"

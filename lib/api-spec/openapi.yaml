@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: rota
+    description: Rota management and AI generation
 paths:
   /healthz:
     get:
@@ -24,6 +26,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /rota/generate:
+    post:
+      operationId: generateRota
+      tags: [rota]
+      summary: AI-generate a monthly rota
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateRotaRequest"
+      responses:
+        "200":
+          description: Generated rota assignments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateRotaResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +65,89 @@ components:
           type: string
       required:
         - status
-
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    RotaStaffMember:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        contractedHours:
+          type: number
+        role:
+          type: string
+      required: [id, name, contractedHours, role]
+    ExistingShift:
+      type: object
+      properties:
+        staffId:
+          type: string
+        date:
+          type: string
+        shiftType:
+          type: string
+      required: [staffId, date, shiftType]
+    GenerateRotaRequest:
+      type: object
+      properties:
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        year:
+          type: integer
+        team:
+          type: string
+        staff:
+          type: array
+          items:
+            $ref: "#/components/schemas/RotaStaffMember"
+        minDayCoverage:
+          type: integer
+          default: 2
+        minDaySleepCoverage:
+          type: integer
+          default: 2
+        minNightCoverage:
+          type: integer
+          default: 2
+        notes:
+          type: string
+        existingShifts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExistingShift"
+      required: [month, year, staff]
+    GeneratedShift:
+      type: object
+      properties:
+        staffId:
+          type: string
+        date:
+          type: string
+        shiftType:
+          type: string
+        hours:
+          type: number
+      required: [staffId, date, shiftType, hours]
+    GenerateRotaResponse:
+      type: object
+      properties:
+        shifts:
+          type: array
+          items:
+            $ref: "#/components/schemas/GeneratedShift"
+        summary:
+          type: string
+        warnings:
+          type: array
+          items:
+            type: string
+      required: [shifts, summary]
