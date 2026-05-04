@@ -1,3 +1,7 @@
+import { db } from "../../../lib/db/src";
+import { savedRotas } from "../../../lib/db/src/schema";
+import { createSavedRota } from "../../../lib/rota-engine/src/savedRota";
+
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
@@ -171,3 +175,36 @@ router.post("/save", async (req, res) => {
     return res.status(500).json({ error: "Failed to save rota" });
   }
 });
+router.post("/save", async (req, res) => {
+  try {
+    const { clientId, startDate, endDate, rota, status } = req.body;
+
+    if (!clientId || !startDate || !endDate || !rota) {
+      return res.status(400).json({
+        error: "Missing required fields",
+        required: ["clientId", "startDate", "endDate", "rota"],
+      });
+    }
+
+    const savedRota = createSavedRota({
+      clientId,
+      startDate,
+      endDate,
+      rota,
+      status: status || "draft",
+    });
+
+    await db.insert(savedRotas).values(savedRota);
+
+    return res.status(201).json({
+      message: "Rota saved successfully",
+      rota: savedRota,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: "Failed to save rota",
+    });
+  }
+});
+
