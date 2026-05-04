@@ -207,4 +207,35 @@ router.post("/save", async (req, res) => {
     });
   }
 });
+router.post("/save", async (req, res) => {
+  try {
+    const { clientId, startDate, endDate, rota, status } = req.body;
+
+    if (!clientId || !startDate || !endDate || !rota) {
+      return res.status(400).json({
+        error: "Missing required fields",
+      });
+    }
+
+    const saved = createSavedRota({
+      clientId,
+      startDate,
+      endDate,
+      rota,
+      status: status || "draft",
+    });
+
+    await db.insert(savedRotas).values(saved);
+
+    return res.status(201).json({
+      message: "Rota saved successfully",
+      data: saved,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: "Failed to save rota",
+    });
+  }
+});
 
