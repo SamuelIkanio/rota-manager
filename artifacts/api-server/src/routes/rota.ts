@@ -146,3 +146,28 @@ router.post("/generate-auto", async (req, res) => {
     return res.status(500).json({ error: "Failed to generate auto rota" });
   }
 });
+
+router.post("/save", async (req, res) => {
+  try {
+    const { rota, status } = req.body;
+
+    if (!rota) {
+      return res.status(400).json({ error: "No rota provided" });
+    }
+
+    // For now we just simulate saving
+    // Later we connect to database
+
+    return res.json({
+      message: "Rota saved successfully",
+      data: {
+        rota,
+        status: status || "draft",
+        savedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to save rota" });
+  }
+});
