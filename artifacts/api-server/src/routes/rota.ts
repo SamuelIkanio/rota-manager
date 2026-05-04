@@ -125,3 +125,24 @@ Assign a shift entry for EVERY staff member for EVERY day of the month (${daysIn
 });
 
 export default router;
+
+import { generateWeeklyRota } from "../../../lib/rota-engine/src/generateWeeklyRota";
+import { validateWeeklyRota } from "../../../lib/rota-engine/src/validateRota";
+
+router.post("/generate-auto", async (req, res) => {
+  try {
+    const { startDate, staff, support } = req.body;
+
+    if (!startDate || !staff || !support) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const rota = generateWeeklyRota(startDate, staff, support);
+    const validation = validateWeeklyRota(rota);
+
+    return res.json({ rota, validation });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to generate auto rota" });
+  }
+});
