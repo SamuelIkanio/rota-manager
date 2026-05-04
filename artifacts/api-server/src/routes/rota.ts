@@ -100,7 +100,7 @@ Assign a shift entry for EVERY staff member for EVERY day of the month (${daysIn
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-5.4",
+      model: "gpt-4o",
       max_completion_tokens: 8192,
       response_format: { type: "json_object" },
       messages: [
